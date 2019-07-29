@@ -82,7 +82,8 @@ module.exports = {
           title: '运维与多人协作',
           collapsable: false,
           children: [
-            'operation-git'
+            'operation-git',
+            'operation-blog'
           ]
         },
       ],
