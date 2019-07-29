@@ -6,4 +6,10 @@ cache:
   directories:
     - node_modules
 script:
-    - ./deploy.sh
+    - npm run docs:build
+after_script:
+    - cd docs/.vuepress/dist
+    - git init
+    - git add -A
+    - git commit -m 'deploy'
+    - git push -f https://${access_token}@github.com/BaoTao1997/BaoTao1997.github.io.git master
