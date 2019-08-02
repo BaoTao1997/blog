@@ -234,7 +234,7 @@ function flatten3(arr) {
 }
 ```
 
-查找指定元素：findIndex，createIndexFinder，sortedIndex，indexOf，fromIndex
+查找指定元素：findIndex，createIndexFinder，sortedIndex
 
 ```js
 Array.prototype.createIndexFinder = function () {
@@ -252,6 +252,18 @@ function isBigEnough(element) {
 }
 // 根据第二个参数进行判断，负值则进行倒序遍历
 console.log([12, 5, 8, 130, 44].createIndexFinder(isBigEnough, 2))
+Array.prototype.sortedIndex = function () {
+    let arr = this, target = arguments[0];
+    let low = 0, height = arr.length;
+    while (low < height) {
+        var mid = Math.floor((low + height) / 2);
+        if (target > arr[mid]) low = mid + 1;
+        else height = mid;
+    }
+    return mid
+}
+// 判断在有序数组中的位置
+console.log([10, 20, 30, 40, 50].sortedIndex(25));
 ```
 
 乱序：插入排序，shuffle
@@ -341,13 +353,62 @@ function debounce(func, wait) {
 
 ### 6.手写函数柯里化
 
+柯里化主要就是把多个参数转换为单个参数传入，只有达到指定参数个数之后才能够执行：
+
+比如我们有这样一段数据：
+
+```
+var person = [{name: 'kevin'}, {name: 'daisy'}]
+```
+
+如果我们要获取所有的 name 值，我们可以这样做：
+
+```
+var name = person.map(function (item) {
+    return item.name;
+})
+```
+
+不过如果我们有 curry 函数：
+
+```
+var prop = curry(function (key, obj) {
+    return obj[key]
+});
+
+var name = person.map(prop('name'))
+```
+
+我们为了获取 name 属性还要再编写一个 prop 函数，是不是又麻烦了些？但是要注意，prop 函数编写一次后，以后可以多次使用，而且看起来更清晰。
+
+eg: 实现`console.log(add(1)(2)(3)(4)) console.log(add(1,2,3,4))`都打印10
+
 ES5：
 
+```js
+function curry(fn, args) {
+    length = fn.length;
+    args = args || [];
+    return function() {
+        var arr = args, item;
+        for(var i = 0; i < arguments.length; i++) {
+            item = arguments[i];
+            arr.push(item)
+        }
+        if(arr.length < length) {
+            return curry.call(this,fn,arr)
+        } else {
+            return fn.apply(this, arr)
+        }
+    }
+}
 
+function Add(a,b,c,d) {
+    return a + b + c + d;
+}
 
-ES6：
-
-
+var add = curry(Add);
+```
 
 ### 7.对象的深浅拷贝，复制，遍历以及判断对象相等
 
@@ -641,6 +702,9 @@ instanceof是根据原型链进行判断的，具体实现如下：
 
 ```js
 function(left,right) {
+    if(typeof left !== 'object' && typeof left !== 'function') {
+        return false
+    }
     let proto = left.__proto__;
     let prototype = right.prototype;
     while(true) {
@@ -734,9 +798,95 @@ function isArrayLike(obj) {
 
 ### 10.动手实现JSON.stringfy和JSON.parse方法
 
+JSON.stringfy：包装类转成原始类型，undefined/Function/symbol会被忽略，不可枚举的属性忽略，循环引用的属性也要忽略
+
+```js
+function jsonStringfy(obj) {
+    let type = typeof obj;
+    if (type !== 'object' || type === null) {
+        if (/string|undefined|function/.test(type)) {
+            obj = '"' + obj + '"'
+        }
+        return String(obj)
+    } else {
+        let json = [];
+        arr = (obj && obj.constructor === Array);
+        for (let k in obj) {
+            let v = obj[k];
+            let type = typeof v;
+            if (/string|undefined|function/.test(type)) {
+                v = '"' + v + '"'
+            } else if(type === 'object') {
+                v = jsonStringfy(v)
+            }
+            json.push((arr ? "" : '"' + k + '":') + String(v))
+        }
+        return (arr ? '[' : '{') + String(json) + (arr ? ']' : '}')
+    }
+}
+console.log(jsonStringfy({x: 5}));
+console.log(jsonStringfy([1, "false", false]));
+console.log(jsonStringfy({b: undefined}))
+```
+
+[JSON.parse](https://juejin.im/entry/5a98f1ef518825558001a859)：`eval`实现容易产生XSS，改为`new Function()`也行
+
+```js
+var rx_one = /^[\],:{}\s]*$/;
+var rx_two = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rx_three = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rx_four = /(?:^|:|,)(?:\s*\[)+/g;
+
+if (
+    rx_one.test(
+        json
+            .replace(rx_two, "@")
+            .replace(rx_three, "]")
+            .replace(rx_four, "")
+    )
+) {
+    var obj = eval("(" +json + ")");
+}
+```
+
+### 11.手写一个闭包以及[闭包的作用](https://zhuanlan.zhihu.com/p/26899840)
+
+>闭包具有保留外层变量引用的特性：
+>
+>bind实现this绑定和参数传递
+>
+>setTimeout() 绑定this，或者追加第三个参数传入
+>
+>回调函数...
+
+```js
+function say(number) {
+    var arr = []
+    for (var i = 0; i < 10; i++) {
+        arr[i] = function () {
+            console.log(i)
+        }
+    }
+    return arr[number]()
+}
+// 打印为10
+say(3);
 
 
-### 11.手写一个闭包以及闭包的作用
+function say(number) {
+    var arr = []
+    for (var i = 0; i < 10; i++) {
+        arr[i] = (function (index) {
+            return function () {
+                console.log(index)
+            }
+        })(i)
+    }
+    return arr[number]()
+}
+// 打印为3
+say(3);
+```
 
 
 

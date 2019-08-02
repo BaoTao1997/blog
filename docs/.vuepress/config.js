@@ -119,6 +119,13 @@ module.exports = {
             "component-datePick"
           ]
         },
+        {
+          title: '项目',
+          collapsable: false,
+          children: [
+            "project-vrsystem"
+          ]
+        },
       ],
       '/resume/': [
 
