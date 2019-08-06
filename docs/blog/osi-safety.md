@@ -212,6 +212,7 @@ if(!captchaResult) {
 特性
 
 - 域名(domain)，有效期(expires)，路径(path)，http-only(不能通过js获取)，secure(只能在https中使用)，sameSite(禁止第三方的Cookies)
+- 每次设置Cookie时最好用`encodeURIComponent`编码，获取时用`decodeUPIComponent`解码
 
 ```js
 document.cookie = 'a=111;' // 只是添加Cookies

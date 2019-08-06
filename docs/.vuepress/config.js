@@ -35,6 +35,13 @@ module.exports = {
     sidebar: {
       '/blog/': [
         {
+          title: '前端工程化',
+          collapsable: false,
+          children: [
+            'engineering-optimize'
+          ]
+        },
+        {
           title: 'Framework',
           collapsable: false,
           children: [

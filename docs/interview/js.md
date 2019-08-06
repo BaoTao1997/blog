@@ -888,7 +888,55 @@ function say(number) {
 say(3);
 ```
 
+### 12.谈谈ES6
 
+```js
+let/const：不存在变量提升，有暂时性死区，引入块级作用域，const变量需要立刻赋值且不能改变
+箭头函数：没有自己的this（通过查找作用域链来确定），不能new，没有arguments和原型
+解构赋值，Map/Set类型
+Proxy和Reflect：proxy进行对象属性访问的劫持，refelect则是把Object上语言内部的方法放置到这个对象上
+模板字符串，数组拓展方法（...，includes，find，findIndex，flat）
+class：通过extends实现继承，constructor为构造函数，函数和变量用static修饰相当于添加为该class的属性
+Promise:通过then实现链式调用，只有两种状态resolve/reject,解决异步循环嵌套问题
+```
+async/await:更好的异步处理，每个await返回一个Promise实例，将函数设为async则会继发执行await,将异步请求结果用await输出，而不是在await后面直接添加异步请求方法
+```js
+多个await命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
+
+let foo = await getFoo();
+let bar = await getBar();
+上面代码中，getFoo和getBar是两个独立的异步操作（即互不依赖），被写成继发关系。这样比较耗时，因为只有getFoo完成以后，才会执行getBar，完全可以让它们同时触发。
+
+// 写法一
+let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+
+// 写法二
+let fooPromise = getFoo();
+let barPromise = getBar();
+let foo = await fooPromise;
+let bar = await barPromise;
+```
+Module模块化：Node(require/module.exports和exports)ES6(import/export):
+
+1. CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。
+2. CommonJS 模块是运行时加载，ES6 模块是编译时输出接口
+
+```js
+export default 命令
+为了给用户提供方便，让他们不用阅读文档就能加载模块，就要用到export default命令，为模块指定默认输出。
+// export-default.js
+export default function () {
+  console.log('foo');
+}
+上面代码是一个模块文件export-default.js，它的默认输出是一个函数。其他模块加载该模块时，import命令可以为该匿名函数指定任意名字。
+
+模块的整体加载
+除了指定加载某个输出值，还可以使用整体加载，即用星号（*）指定一个对象，所有输出值都加载在这个对象上面。
+import * as circle from './circle';
+
+因为require是运行时加载模块，import命令无法取代require的动态加载功能。
+import()函数可以用在任何地方，不仅仅是模块，非模块的脚本也可以使用。它是运行时执行，也就是说，什么时候运行到这一句，就会加载指定的模块。另外，import()函数与所加载的模块没有静态连接关系，这点也是与import语句不相同。import()类似于 Node 的require方法，区别主要是前者是异步加载，后者是同步加载。
+```
 
 
 

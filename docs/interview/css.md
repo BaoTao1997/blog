@@ -327,6 +327,32 @@ section {
 2.父级div定义 overflow: auto/hidden
 3.利用::after 方法
 .outer {zoom:1;}    /*==for IE6/7 Maxthon2==*/
-.outer :after {clear:both;content:'.';display:block;width: 0;height: 0;visibility:hidden;}   /*==for FF/chrome/opera/IE8==*/
+.outer::after {clear:both;content:'.';display:block;width: 0;height: 0;visibility:hidden;}   /*==for FF/chrome/opera/IE8==*/
 ```
+
+### 9.三角形实现
+
+```css
+.box
+{
+    width:0px;
+    height:0px;
+    border-top:50px solid red;
+    border-right:50px solid yellow;
+    border-bottom:50px solid green;
+    border-left:50px solid pink; // 只要把上、右、左 方向边框的颜色设置为透明，只剩下向上的小三角
+}
+```
+
+### 10.BFC
+
+BFC 生成了一套封闭的布局空间，内部子元素无论怎么布局，都不会影响到外部的元素。BFC 可以用来**清除浮动**，**防止 margin 重叠**，**去除 float 文字环绕**，**第一个子元素 margin-top 和父元素重叠**等。
+
+以下几种元素会生成 BFC：
+
+- html 元素。
+- float 不是 none 的元素。
+- overflow: auto/hidden/scroll 的元素。
+- display: table-cell/inline-block 的元素。
+- position 不是 static 和 relative 的元素。
 
